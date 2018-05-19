@@ -2,6 +2,7 @@
 #define SHIP_H_INCLUDED
 
 #include "GameEntity.h"
+#include "Weapon.h"
 
 class Graphics;
 
@@ -9,6 +10,7 @@ class Ship : public GameEntity
 {
 public:
 	Ship();
+	~Ship();
 
 	void SetControlInput(float acceleration,
 		float rotation);
@@ -25,9 +27,13 @@ public:
 	void SetInvulnerability(bool status);
 
 	void Reset();
+	Weapon* GetAttatchedWeapon();
 
 private:
 
+	Weapon* CreateWeapon(EWeaponType type);
+
+	Weapon* weapon_;
 	int activeColor_, invulnerableColor_, vulnerableColor_;
 
 	float accelerationControl_;

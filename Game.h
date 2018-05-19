@@ -63,7 +63,7 @@ private:
 	void SetPlayerInvulnerable(float duration);
 	void SetPlayerVunlerable();
 
-	void SpawnBullet(const D3DXVECTOR3 &position,
+	void FireRound(const D3DXVECTOR3 &position,
 		const D3DXVECTOR3 &direction);
 	bool IsBullet(GameEntity* entity) const;
 	bool CanFireBullet();

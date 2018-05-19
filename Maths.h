@@ -6,6 +6,7 @@ class Maths
 public:
 	static const float PI;
 	static const float TWO_PI;
+	static float const DegreesToRadians(float degrees);
 	static float WrapModulo(float value, float max);
 	static float WrapModulo(float value, float min, float max);
 };

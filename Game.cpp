@@ -201,13 +201,27 @@ void Game::UpdatePlayer(System *system)
 		D3DXVECTOR3 bulletPosition = player_->GetPosition() + playerForward * 10.0f;
 
 		if(CanFireBullet())
-			SpawnBullet(bulletPosition, playerForward);
+			FireRound(bulletPosition, playerForward);
 	}
 
 	if(!timerManager_->IsTimerRunning(playerInvulnerabilityHandle_) && playerInvulnerabilityHandle_ != 0)
 	{
 		SetPlayerVunlerable();
 	}
+
+	if(keyboard->IsKeyPressed(VK_NUMPAD1))
+	{
+		player_->GetAttatchedWeapon()->SwitchWeapons(SIMPLE_FIRING);
+	}
+	else if(keyboard->IsKeyPressed(VK_NUMPAD2))
+	{
+		player_->GetAttatchedWeapon()->SwitchWeapons(CONICAL_FIRING);
+	}
+	else if(keyboard->IsKeyPressed(VK_NUMPAD3))
+	{
+		player_->GetAttatchedWeapon()->SwitchWeapons(FLAK_CANNON);
+	}
+	
 
 }
 
@@ -333,12 +347,18 @@ void Game::DeleteAllExplosions()
 	explosions_.clear();
 }
 
-void Game::SpawnBullet(const D3DXVECTOR3 &position,
+void Game::FireRound(const D3DXVECTOR3 &position,
 	const D3DXVECTOR3 &direction)
 {
-	Bullet* bullet = new Bullet(position, direction);
-	bullet->EnableCollisions(collision_, 3.0f);
-	bullets_.push_back(bullet);
+	std::list<Bullet*> bulletsFired = player_->GetAttatchedWeapon()->FireRound(position, direction);
+
+	for(std::list<Bullet*>::iterator bulletIt = bulletsFired.begin(), end = bulletsFired.end();
+		bulletIt != end;
+		++bulletIt)
+	{
+		(*bulletIt)->EnableCollisions(collision_, 3.0f);
+		bullets_.push_back(*bulletIt);
+	}
 
 	bulletTimerHandle_ = timerManager_->StartTimer(1);
 }

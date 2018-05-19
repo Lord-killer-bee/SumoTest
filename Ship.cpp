@@ -14,6 +14,12 @@ Ship::Ship() :
 	invulnerableColor_(0xffffff60),
 	vulnerableColor_(0xffffffff)
 {
+	weapon_ = CreateWeapon( SIMPLE_FIRING );
+}
+
+Ship::~Ship()
+{
+	delete weapon_;
 }
 
 void Ship::SetControlInput(float acceleration,
@@ -132,4 +138,17 @@ void Ship::SetInvulnerability(bool status)
 		activeColor_ = invulnerableColor_;
 	else
 		activeColor_ = vulnerableColor_;
+}
+
+Weapon* Ship::CreateWeapon(EWeaponType type)
+{
+	weapon_ = new Weapon();
+	weapon_->InitializeWeapon(type);
+
+	return weapon_;
+}
+
+Weapon* Ship::GetAttatchedWeapon()
+{
+	return weapon_;
 }
