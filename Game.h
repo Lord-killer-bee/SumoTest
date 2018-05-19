@@ -14,6 +14,7 @@ class Collision;
 class System;
 class Graphics;
 class GameEntity;
+class TimerManager;
 
 class Game
 {
@@ -36,6 +37,7 @@ private:
 	void operator=(const Game &);
 
 	typedef std::list<Asteroid *> AsteroidList;
+	typedef std::list<Bullet *> BulletList;
 	typedef std::list<Explosion *> ExplosionList;
 
 	void SpawnPlayer();
@@ -43,15 +45,23 @@ private:
 
 	void UpdatePlayer(System *system);
 	void UpdateAsteroids(System *system);
-	void UpdateBullet(System *system);
+	void UpdateBullets(System *system);
+	void UpdateTimers(System* system);
 	void WrapEntity(GameEntity *entity) const;
 
+	void DeleteAllBullets();
 	void DeleteAllAsteroids();
 	void DeleteAllExplosions();
 
+	void CreateTimerManager();
+	void DeleteTimerManager();
+
 	void SpawnBullet(const D3DXVECTOR3 &position,
 		const D3DXVECTOR3 &direction);
-	void DeleteBullet();
+	bool IsBullet(GameEntity* entity);
+	bool CanFireBullet();
+	void DeleteBullet(Bullet* bullet);
+	bool BulletOutOfBounds(Bullet* bullet);
 
 	void SpawnAsteroids(int numAsteroids);
 	void SpawnAsteroidAt(const D3DXVECTOR3 &position, int size);
@@ -61,11 +71,15 @@ private:
 
 	void UpdateCollisions();
 
+	int bulletTimerHandle_;
+
 	OrthoCamera *camera_;
+	TimerManager *timerManager_;
 
 	Background *background_;
 	Ship *player_;
-	Bullet *bullet_;
+
+	BulletList bullets_;
 	AsteroidList asteroids_;
 	ExplosionList explosions_;
 

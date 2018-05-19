@@ -10,19 +10,24 @@
 #include "Maths.h"
 #include "Bullet.h"
 #include "Collision.h"
+#include "TimerManager.h"
 #include <algorithm>
 
 Game::Game() :
 	camera_(0),
 	background_(0),
 	player_(0),
-	collision_(0)
+	collision_(0),
+	timerManager_(0),
+	bulletTimerHandle_(0)
+	//bullet_(0)
 {
 	camera_ = new OrthoCamera();
 	camera_->SetPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	camera_->SetFrustum(800.0f, 600.0f, -100.0f, 100.0f);
 	background_ = new Background(800.0f, 600.0f);
 	collision_ = new Collision();
+	CreateTimerManager();
 }
 
 Game::~Game()
@@ -30,9 +35,10 @@ Game::~Game()
 	delete camera_;
 	delete background_;
 	delete player_;
-	DeleteBullet();
+	DeleteAllBullets();
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
+	DeleteTimerManager();
 	delete collision_;
 }
 
@@ -40,8 +46,9 @@ void Game::Update(System *system)
 {
 	UpdatePlayer(system);
 	UpdateAsteroids(system);
-	UpdateBullet(system);
+	UpdateBullets(system);
 	UpdateCollisions();
+	UpdateTimers(system);
 }
 
 void Game::RenderBackgroundOnly(Graphics *graphics)
@@ -69,9 +76,17 @@ void Game::RenderEverything(Graphics *graphics)
 		(*asteroidIt)->Render(graphics);
 	}
 
-	if (bullet_) //**TODO: Candidate for crash
+	/*if (bullet_) //**TODO: Candidate for crash
 	{
 		bullet_->Render(graphics);
+	}*/
+
+	for(BulletList::const_iterator bulletIt = bullets_.begin(),
+		end = bullets_.end();
+		bulletIt != end;
+		++bulletIt)
+	{
+		(*bulletIt)->Render(graphics);
 	}
 
 	for (ExplosionList::const_iterator explosionIt = explosions_.begin(),
@@ -85,6 +100,7 @@ void Game::RenderEverything(Graphics *graphics)
 
 void Game::InitialiseLevel(int numAsteroids)
 {
+	DeleteAllBullets();
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
 
@@ -105,7 +121,7 @@ bool Game::IsGameOver() const
 void Game::DoCollision(GameEntity *a, GameEntity *b)
 {
 	Ship *player = static_cast<Ship *>(a == player_ ? a : (b == player_ ? b : 0));
-	Bullet *bullet = static_cast<Bullet *>(a == bullet_ ? a : (b == bullet_ ? b : 0));
+	Bullet* bullet = static_cast<Bullet*>(IsBullet(a) ? a : (IsBullet(b) ? b : 0)); 
 	Asteroid *asteroid = static_cast<Asteroid *>(IsAsteroid(a) ? a : (IsAsteroid(b) ? b : 0));
 
 	if (player && asteroid)
@@ -117,7 +133,7 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 	if (bullet && asteroid)
 	{
 		AsteroidHit(asteroid);
-		DeleteBullet();
+		DeleteBullet(bullet);
 	}
 }
 
@@ -169,8 +185,22 @@ void Game::UpdatePlayer(System *system)
 	{
 		D3DXVECTOR3 playerForward = player_->GetForwardVector();
 		D3DXVECTOR3 bulletPosition = player_->GetPosition() + playerForward * 10.0f;
-		SpawnBullet(bulletPosition, playerForward);
+
+		if(CanFireBullet())
+			SpawnBullet(bulletPosition, playerForward);
 	}
+}
+
+void Game::CreateTimerManager()
+{
+	DeleteTimerManager();
+
+	timerManager_ = new TimerManager();
+}
+void Game::DeleteTimerManager()
+{
+	delete timerManager_;
+	timerManager_ = 0;
 }
 
 void Game::UpdateAsteroids(System *system)
@@ -185,13 +215,44 @@ void Game::UpdateAsteroids(System *system)
 	}
 }
 
-void Game::UpdateBullet(System *system)
+void Game::UpdateBullets(System *system)
 {
-	if (bullet_)
+	for(BulletList::const_iterator bulletIt = bullets_.begin(),
+		end = bullets_.end();
+		bulletIt != end;
+		++bulletIt)
 	{
-		bullet_->Update(system);
-		WrapEntity(bullet_);
+		(*bulletIt)->Update(system);
+
+		if(BulletOutOfBounds(*bulletIt))
+			break;
 	}
+}
+
+void Game::UpdateTimers(System* system)
+{
+	if(timerManager_ == 0)
+		return;
+
+	timerManager_->Update(system);
+}
+
+bool Game::IsBullet(GameEntity* entity)
+{
+	//TODO : Understand the logic behind this
+	return (std::find(bullets_.begin(),
+		bullets_.end(), entity) != bullets_.end()); 
+}
+
+bool Game::CanFireBullet()
+{
+	return !(timerManager_->IsTimerRunning(bulletTimerHandle_));
+}
+
+void Game::DeleteBullet(Bullet* bullet)
+{
+	bullets_.remove(bullet);
+	delete bullet;
 }
 
 void Game::WrapEntity(GameEntity *entity) const
@@ -200,6 +261,17 @@ void Game::WrapEntity(GameEntity *entity) const
 	entityPosition.x = Maths::WrapModulo(entityPosition.x, -400.0f, 400.0f);
 	entityPosition.y = Maths::WrapModulo(entityPosition.y, -300.0f, 300.0f);
 	entity->SetPosition(entityPosition);
+}
+
+bool Game::BulletOutOfBounds(Bullet* bullet)
+{
+	D3DXVECTOR3 bulletPosition = bullet->GetPosition();
+	if(bulletPosition.x > 400.0f || bulletPosition.x < -400.0f || bulletPosition.y > 300.0f || bulletPosition.y < -300.0f)
+	{
+		DeleteBullet(bullet);	
+		return true;
+	}
+	return false;
 }
 
 void Game::DeleteAllAsteroids()
@@ -231,15 +303,24 @@ void Game::DeleteAllExplosions()
 void Game::SpawnBullet(const D3DXVECTOR3 &position,
 	const D3DXVECTOR3 &direction)
 {
-	DeleteBullet();
-	bullet_ = new Bullet(position, direction);
-	bullet_->EnableCollisions(collision_, 3.0f);
+	Bullet* bullet = new Bullet(position, direction);
+	bullet->EnableCollisions(collision_, 3.0f);
+	bullets_.push_back(bullet);
+
+	bulletTimerHandle_ = timerManager_->StartTimer(1);
 }
 
-void Game::DeleteBullet()
+void Game::DeleteAllBullets()
 {
-	delete bullet_;
-	bullet_ = 0;
+	for (BulletList::const_iterator bulletIt = bullets_.begin(),
+		end = bullets_.end();
+		bulletIt != end;
+	++bulletIt)
+	{
+		delete (*bulletIt);
+	}
+
+	bullets_.clear();
 }
 
 void Game::SpawnAsteroids(int numAsteroids)

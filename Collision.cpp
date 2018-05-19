@@ -65,14 +65,16 @@ void Collision::DoCollisions(Game *game) const
 		ColliderList::const_iterator colliderBIt = colliderAIt;
 		for (++colliderBIt; colliderBIt != end; ++colliderBIt)
 		{
-			Collider *colliderA = *colliderAIt;
-			Collider *colliderB = *colliderBIt;
+			Collider* colliderA = *colliderAIt;
+			Collider* colliderB = *colliderBIt;
 			if (CollisionTest(colliderA, colliderB))
 			{
 				game->DoCollision(colliderA->entity, colliderB->entity);
+				goto end_of_execution;
 			}
 		}
 	}
+	end_of_execution:;
 }
 
 bool Collision::CollisionTest(Collider *a, Collider *b)
