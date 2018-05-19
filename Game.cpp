@@ -11,6 +11,8 @@
 #include "Bullet.h"
 #include "Collision.h"
 #include "TimerManager.h"
+#include "Font.h"
+#include "Graphics.h"
 #include <algorithm>
 
 Game::Game() :
@@ -19,8 +21,9 @@ Game::Game() :
 	player_(0),
 	collision_(0),
 	timerManager_(0),
-	bulletTimerHandle_(0)
-	//bullet_(0)
+	bulletTimerHandle_(0),
+	playerInvulnerabilityHandle_(0),
+	font_(0)
 {
 	camera_ = new OrthoCamera();
 	camera_->SetPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
@@ -66,6 +69,7 @@ void Game::RenderEverything(Graphics *graphics)
 	if (player_)
 	{
 		player_->Render(graphics);
+		font_->DrawText("LIVES: " + std::to_string(player_->GetLives()), 50, 50, 0xffffff00);
 	}
 
 	for (AsteroidList::const_iterator asteroidIt = asteroids_.begin(),
@@ -75,11 +79,6 @@ void Game::RenderEverything(Graphics *graphics)
 	{
 		(*asteroidIt)->Render(graphics);
 	}
-
-	/*if (bullet_) //**TODO: Candidate for crash
-	{
-		bullet_->Render(graphics);
-	}*/
 
 	for(BulletList::const_iterator bulletIt = bullets_.begin(),
 		end = bullets_.end();
@@ -103,9 +102,16 @@ void Game::InitialiseLevel(int numAsteroids)
 	DeleteAllBullets();
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
+	
+	playerLives_ = 3;//Set player lives when initializing level
 
 	SpawnPlayer();
 	SpawnAsteroids(numAsteroids);
+}
+
+void Game::InitializeUI(System *system)
+{
+	font_ = system->GetGraphics()->CreateXFont("Arial", 16);
 }
 
 bool Game::IsLevelComplete() const
@@ -127,7 +133,14 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 	if (player && asteroid)
 	{
 		AsteroidHit(asteroid);
-		DeletePlayer();
+
+		if(player_->GetLives() > 0)
+		{
+			player_->DeductLives();
+			SetPlayerInvulnerable(1.5f);
+		}
+		else
+			DeletePlayer();
 	}
 
 	if (bullet && asteroid)
@@ -141,6 +154,7 @@ void Game::SpawnPlayer()
 {
 	DeletePlayer();
 	player_ = new Ship();
+	player_->SetLives(playerLives_);
 	player_->EnableCollisions(collision_, 10.0f);
 }
 
@@ -189,6 +203,12 @@ void Game::UpdatePlayer(System *system)
 		if(CanFireBullet())
 			SpawnBullet(bulletPosition, playerForward);
 	}
+
+	if(!timerManager_->IsTimerRunning(playerInvulnerabilityHandle_) && playerInvulnerabilityHandle_ != 0)
+	{
+		SetPlayerVunlerable();
+	}
+
 }
 
 void Game::CreateTimerManager()
@@ -201,6 +221,19 @@ void Game::DeleteTimerManager()
 {
 	delete timerManager_;
 	timerManager_ = 0;
+}
+
+void Game::SetPlayerInvulnerable(float duration)
+{
+	collision_->DisableCollider(player_->GetCollider());
+	player_->SetInvulnerability(true);
+	playerInvulnerabilityHandle_ = timerManager_->StartTimer(duration);
+}
+
+void Game::SetPlayerVunlerable()
+{
+	player_->SetInvulnerability(false);
+	collision_->EnableCollider(player_->GetCollider());
 }
 
 void Game::UpdateAsteroids(System *system)
@@ -237,7 +270,7 @@ void Game::UpdateTimers(System* system)
 	timerManager_->Update(system);
 }
 
-bool Game::IsBullet(GameEntity* entity)
+bool Game::IsBullet(GameEntity* entity) const
 {
 	//TODO : Understand the logic behind this
 	return (std::find(bullets_.begin(),
@@ -379,4 +412,10 @@ void Game::DeleteAsteroid(Asteroid *asteroid)
 void Game::UpdateCollisions()
 {
 	collision_->DoCollisions(this);
+}
+
+void Game::DeactivateUI(System* system)
+{
+	system->GetGraphics()->DestroyXFont(font_);
+	font_ = 0;
 }

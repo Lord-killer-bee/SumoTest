@@ -65,3 +65,8 @@ void GameEntity::DestroyCollider()
 	collisionSystem_ = 0;
 	collider_ = 0;
 }
+
+Collider* GameEntity::GetCollider()
+{
+	return collider_;
+}

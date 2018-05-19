@@ -15,6 +15,7 @@ class System;
 class Graphics;
 class GameEntity;
 class TimerManager;
+class Font;
 
 class Game
 {
@@ -27,10 +28,13 @@ public:
 	void RenderEverything(Graphics *graphics);
 
 	void InitialiseLevel(int numAsteroids);
+	void InitializeUI(System* system);
 	bool IsLevelComplete() const;
 	bool IsGameOver() const;
 
 	void DoCollision(GameEntity *a, GameEntity *b);
+
+	void DeactivateUI(System* system);
 
 private:
 	Game(const Game &);
@@ -56,9 +60,12 @@ private:
 	void CreateTimerManager();
 	void DeleteTimerManager();
 
+	void SetPlayerInvulnerable(float duration);
+	void SetPlayerVunlerable();
+
 	void SpawnBullet(const D3DXVECTOR3 &position,
 		const D3DXVECTOR3 &direction);
-	bool IsBullet(GameEntity* entity);
+	bool IsBullet(GameEntity* entity) const;
 	bool CanFireBullet();
 	void DeleteBullet(Bullet* bullet);
 	bool BulletOutOfBounds(Bullet* bullet);
@@ -71,10 +78,13 @@ private:
 
 	void UpdateCollisions();
 
-	int bulletTimerHandle_;
+	int bulletTimerHandle_, playerInvulnerabilityHandle_;
+	int playerLives_;
 
 	OrthoCamera *camera_;
 	TimerManager *timerManager_;
+
+	Font *font_;
 
 	Background *background_;
 	Ship *player_;

@@ -8,7 +8,11 @@ Ship::Ship() :
 	rotationControl_(0.0f),
 	velocity_(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),
 	forward_(D3DXVECTOR3(0.0f, 1.0f, 0.0f)),
-	rotation_(0.0f) //**TODO: Candidate for crash
+	rotation_(0.0f), //**TODO: Candidate for crash
+	lives_(0),
+	activeColor_(0xffffffff),
+	invulnerableColor_(0xffffff60),
+	vulnerableColor_(0xffffffff)
 {
 }
 
@@ -53,10 +57,10 @@ void Ship::Render(Graphics *graphics) const
 
 	DummyVert axis[8] =
 	{
-		{0.0f, -5.0f, 0.0f, 0xffffffff}, {0.0f, 10.0f, 0.0f, 0xffffffff},
-		{-5.0f, 0.0f, 0.0f, 0xffffffff}, {5.0f, 0.0f, 0.0f, 0xffffffff},
-		{0.0f, 10.0f, 0.0f, 0xffffffff}, {-5.0f, 5.0f, 0.0f, 0xffffffff},
-		{0.0f, 10.0f, 0.0f, 0xffffffff}, {5.0f, 5.0f, 0.0f, 0xffffffff},
+		{0.0f, -5.0f, 0.0f, activeColor_}, {0.0f, 10.0f, 0.0f, activeColor_},
+		{-5.0f, 0.0f, 0.0f, activeColor_}, {5.0f, 0.0f, 0.0f, activeColor_},
+		{0.0f, 10.0f, 0.0f, activeColor_}, {-5.0f, 5.0f, 0.0f, activeColor_},
+		{0.0f, 10.0f, 0.0f, activeColor_}, {5.0f, 5.0f, 0.0f, activeColor_},
 	};
 
 	D3DXMATRIX rotationMatrix;
@@ -106,4 +110,26 @@ void Ship::Reset()
 	rotation_ = 0.0f;
 
 	SetPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+}
+
+void Ship::DeductLives()
+{
+	lives_--;
+}
+
+int Ship::GetLives()
+{
+	return lives_;
+}
+void Ship::SetLives(int lives)
+{
+	lives_ = lives;
+}
+
+void Ship::SetInvulnerability(bool status)
+{
+	if(status)
+		activeColor_ = invulnerableColor_;
+	else
+		activeColor_ = vulnerableColor_;
 }

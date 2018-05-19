@@ -20,6 +20,8 @@ public:
 	D3DXVECTOR3 GetPosition() const;
 	void SetPosition(const D3DXVECTOR3 &position);
 
+	Collider* GetCollider();
+
 	void EnableCollisions(Collision *collisionSystem, float radius);
 	void DisableCollisions();
 

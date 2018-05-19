@@ -16,6 +16,7 @@ void PlayingState::OnActivate(System *system, StateArgumentMap &args)
 
 	level_ = args["Level"].asInt;
 	game->InitialiseLevel(level_);
+	game->InitializeUI(system);
 }
 
 void PlayingState::OnUpdate(System *system)
@@ -42,4 +43,6 @@ void PlayingState::OnRender(System *system)
 
 void PlayingState::OnDeactivate(System *system)
 {
+	Game *game = system->GetGame();
+	game->DeactivateUI(system);
 }

@@ -19,9 +19,16 @@ public:
 	D3DXVECTOR3 GetForwardVector() const;
 	D3DXVECTOR3 GetVelocity() const;
 
+	void DeductLives();
+	int GetLives();
+	void SetLives(int lives);
+	void SetInvulnerability(bool status);
+
 	void Reset();
 
 private:
+
+	int activeColor_, invulnerableColor_, vulnerableColor_;
 
 	float accelerationControl_;
 	float rotationControl_;
@@ -30,6 +37,7 @@ private:
 	D3DXVECTOR3 forward_;
 	float rotation_;
 
+	int lives_;
 };
 
 #endif // SHIP_H_INCLUDED
