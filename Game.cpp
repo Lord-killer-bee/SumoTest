@@ -10,6 +10,7 @@
 #include "Maths.h"
 #include "Bullet.h"
 #include "Collision.h"
+#include "CollisionManager.h"
 #include "TimerManager.h"
 #include "Font.h"
 #include "Graphics.h"
@@ -19,7 +20,7 @@ Game::Game() :
 	camera_(0),
 	background_(0),
 	player_(0),
-	collision_(0),
+	collisionManager_(0),
 	timerManager_(0),
 	bulletTimerHandle_(0),
 	playerInvulnerabilityHandle_(0),
@@ -29,7 +30,7 @@ Game::Game() :
 	camera_->SetPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	camera_->SetFrustum(800.0f, 600.0f, -100.0f, 100.0f);
 	background_ = new Background(800.0f, 600.0f);
-	collision_ = new Collision();
+	collisionManager_ = new CollisionManager();
 	CreateTimerManager();
 }
 
@@ -42,7 +43,7 @@ Game::~Game()
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
 	DeleteTimerManager();
-	delete collision_;
+	delete collisionManager_;
 }
 
 void Game::Update(System *system)
@@ -155,11 +156,13 @@ void Game::SpawnPlayer()
 	DeletePlayer();
 	player_ = new Ship();
 	player_->SetLives(playerLives_);
-	player_->EnableCollisions(collision_, 10.0f);
+	player_->EnableCollisions(collisionManager_->GetCollision(), 10.0f);
+	collisionManager_->AddEntityToGrid(player_);
 }
 
 void Game::DeletePlayer()
 {
+	collisionManager_->RemoveEntityFromGrid(player_);
 	delete player_;
 	player_ = 0;
 }
@@ -239,7 +242,7 @@ void Game::DeleteTimerManager()
 
 void Game::SetPlayerInvulnerable(float duration)
 {
-	collision_->DisableCollider(player_->GetCollider());
+	collisionManager_->GetCollision()->DisableCollider(player_->GetCollider());
 	player_->SetInvulnerability(true);
 	playerInvulnerabilityHandle_ = timerManager_->StartTimer(duration);
 }
@@ -247,7 +250,7 @@ void Game::SetPlayerInvulnerable(float duration)
 void Game::SetPlayerVunlerable()
 {
 	player_->SetInvulnerability(false);
-	collision_->EnableCollider(player_->GetCollider());
+	collisionManager_->GetCollision()->EnableCollider(player_->GetCollider());
 }
 
 void Game::UpdateAsteroids(System *system)
@@ -299,6 +302,8 @@ bool Game::CanFireBullet()
 void Game::DeleteBullet(Bullet* bullet)
 {
 	bullets_.remove(bullet);
+	collisionManager_->RemoveEntityFromGrid(bullet);
+
 	delete bullet;
 }
 
@@ -328,6 +333,7 @@ void Game::DeleteAllAsteroids()
 		asteroidIt != end;
 		++asteroidIt)
 	{
+		collisionManager_->RemoveEntityFromGrid(*asteroidIt);
 		delete (*asteroidIt);
 	}
 
@@ -356,8 +362,10 @@ void Game::FireRound(const D3DXVECTOR3 &position,
 		bulletIt != end;
 		++bulletIt)
 	{
-		(*bulletIt)->EnableCollisions(collision_, 3.0f);
+		(*bulletIt)->EnableCollisions(collisionManager_->GetCollision(), 3.0f);
 		bullets_.push_back(*bulletIt);
+
+		collisionManager_->AddEntityToGrid(*bulletIt);
 	}
 
 	bulletTimerHandle_ = timerManager_->StartTimer(1);
@@ -370,6 +378,7 @@ void Game::DeleteAllBullets()
 		bulletIt != end;
 	++bulletIt)
 	{
+		collisionManager_->RemoveEntityFromGrid(*bulletIt);
 		delete (*bulletIt);
 	}
 
@@ -400,8 +409,10 @@ void Game::SpawnAsteroidAt(const D3DXVECTOR3 &position, int size)
 	D3DXVec3TransformNormal(&velocity, &velocity, &randomRotation);
 
 	Asteroid *asteroid = new Asteroid(position, velocity, size);
-	asteroid->EnableCollisions(collision_, size * 5.0f);
+	asteroid->EnableCollisions(collisionManager_->GetCollision(), size * 5.0f);
 	asteroids_.push_back(asteroid);
+
+	collisionManager_->AddEntityToGrid(asteroid);
 }
 
 bool Game::IsAsteroid(GameEntity *entity) const
@@ -426,12 +437,16 @@ void Game::AsteroidHit(Asteroid *asteroid)
 void Game::DeleteAsteroid(Asteroid *asteroid)
 {
 	asteroids_.remove(asteroid);
+	collisionManager_->RemoveEntityFromGrid(asteroid);
+
 	delete asteroid;
 }
 
 void Game::UpdateCollisions()
 {
-	collision_->DoCollisions(this);
+	collisionManager_->UpdateEntitiesInGrid();
+	collisionManager_->CalculateCollisionDetection(this);// TODO: Call "DoCollisions" through this function
+	//collisionManager_->GetCollision()->DoCollisions(this);
 }
 
 void Game::DeactivateUI(System* system)

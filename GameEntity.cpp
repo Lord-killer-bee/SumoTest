@@ -4,7 +4,8 @@
 GameEntity::GameEntity() :
 	position_(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),
 	collisionSystem_(0),
-	collider_(0)
+	collider_(0),
+	collisionRegionID_(-1)
 {
 }
 
@@ -69,4 +70,9 @@ void GameEntity::DestroyCollider()
 Collider* GameEntity::GetCollider()
 {
 	return collider_;
+}
+
+int GameEntity::GetCollisionRegionID()
+{
+	return collisionRegionID_;
 }

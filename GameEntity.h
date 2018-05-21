@@ -21,6 +21,7 @@ public:
 	void SetPosition(const D3DXVECTOR3 &position);
 
 	Collider* GetCollider();
+	int GetCollisionRegionID();
 
 	void EnableCollisions(Collision *collisionSystem, float radius);
 	void DisableCollisions();
@@ -29,6 +30,8 @@ private:
 
 	bool HasValidCollider() const;
 	void DestroyCollider();
+
+	int collisionRegionID_;
 
 	D3DXVECTOR3 position_;
 	Collision *collisionSystem_;

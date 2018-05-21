@@ -10,6 +10,7 @@ class Ship;
 class Bullet;
 class Asteroid;
 class Explosion;
+class CollisionManager;
 class Collision;
 class System;
 class Graphics;
@@ -93,7 +94,7 @@ private:
 	AsteroidList asteroids_;
 	ExplosionList explosions_;
 
-	Collision *collision_;
+	CollisionManager *collisionManager_;
 };
 
 #endif // GAME_H_INCLUDED
