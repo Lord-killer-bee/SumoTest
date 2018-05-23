@@ -1,5 +1,6 @@
 #include "Collision.h"
 #include "Collider.h"
+#include "GameEntity.h"
 #include "Game.h"
 #include <functional>
 
@@ -70,6 +71,27 @@ void Collision::DoCollisions(Game *game) const
 			if (CollisionTest(colliderA, colliderB))
 			{
 				game->DoCollision(colliderA->entity, colliderB->entity);
+				goto end_of_execution;
+			}
+		}
+	}
+	end_of_execution:;
+}
+
+void Collision::DoCollisionOnAListOfEntities(std::list<GameEntity* > entities, Game* game) const
+{
+	for (std::list<GameEntity* >::const_iterator entityAIt = entities.begin(), end = entities.end();
+		entityAIt != end;
+		++entityAIt)
+	{
+		std::list<GameEntity* >::const_iterator entityBIt = entityAIt;
+		for (++entityBIt; entityBIt != end; ++entityBIt)
+		{
+			Collider* colliderA = (*entityAIt)->GetCollider();
+			Collider* colliderB = (*entityBIt)->GetCollider();
+			if (CollisionTest(colliderA, colliderB))
+			{
+				game->DoCollision(*entityAIt, *entityBIt);
 				goto end_of_execution;
 			}
 		}

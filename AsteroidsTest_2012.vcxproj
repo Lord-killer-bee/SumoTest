@@ -91,6 +91,9 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BootState.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="ConicalFiringBehaviour.cpp" />
+    <ClCompile Include="FlakCannonFiringBehaviour.cpp" />
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="OrthoCamera.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -110,8 +113,11 @@
     <ClCompile Include="PlayingState.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Ship.cpp" />
+    <ClCompile Include="SimpleFiringBehaviour.cpp" />
     <ClCompile Include="StateLibrary.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="TimerManager.cpp" />
+    <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetLoader.h" />
@@ -121,6 +127,10 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="BootState.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="ConicalFiringBehaviour.h" />
+    <ClInclude Include="FlakCannonFiringBehaviour.h" />
+    <ClInclude Include="IWeaponBehaviour.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="OrthoCamera.h" />
     <ClInclude Include="Collider.h" />
@@ -139,8 +149,11 @@
     <ClInclude Include="PlayingState.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Ship.h" />
+    <ClInclude Include="SimpleFiringBehaviour.h" />
     <ClInclude Include="StateLibrary.h" />
     <ClInclude Include="System.h" />
+    <ClInclude Include="TimerManager.h" />
+    <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

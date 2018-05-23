@@ -70,7 +70,7 @@ void Game::RenderEverything(Graphics *graphics)
 	if (player_)
 	{
 		player_->Render(graphics);
-		font_->DrawText("LIVES: " + std::to_string(player_->GetLives()), 50, 50, 0xffffff00);
+		//font_->DrawText("LIVES: " + std::to_string(player_->GetLives()), 50, 50, 0xffffff00);
 	}
 
 	for (AsteroidList::const_iterator asteroidIt = asteroids_.begin(),
@@ -112,7 +112,7 @@ void Game::InitialiseLevel(int numAsteroids)
 
 void Game::InitializeUI(System *system)
 {
-	font_ = system->GetGraphics()->CreateXFont("Arial", 16);
+	//font_ = system->GetGraphics()->CreateXFont("Arial", 16);
 }
 
 bool Game::IsLevelComplete() const
@@ -162,7 +162,8 @@ void Game::SpawnPlayer()
 
 void Game::DeletePlayer()
 {
-	collisionManager_->RemoveEntityFromGrid(player_);
+	if(player_ != nullptr)
+		collisionManager_->RemoveEntityFromGrid(player_);
 	delete player_;
 	player_ = 0;
 }
@@ -444,13 +445,13 @@ void Game::DeleteAsteroid(Asteroid *asteroid)
 
 void Game::UpdateCollisions()
 {
-	collisionManager_->UpdateEntitiesInGrid();
+	collisionManager_->UpdateEntitiesInGrid(this);
 	collisionManager_->CalculateCollisionDetection(this);// TODO: Call "DoCollisions" through this function
 	//collisionManager_->GetCollision()->DoCollisions(this);
 }
 
 void Game::DeactivateUI(System* system)
 {
-	system->GetGraphics()->DestroyXFont(font_);
-	font_ = 0;
+	//system->GetGraphics()->DestroyXFont(font_);
+	//font_ = 0;
 }

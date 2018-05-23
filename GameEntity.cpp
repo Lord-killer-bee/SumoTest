@@ -5,8 +5,9 @@ GameEntity::GameEntity() :
 	position_(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),
 	collisionSystem_(0),
 	collider_(0),
-	collisionRegionID_(-1)
+	regionMap_(0)
 {
+	regionMap_ = new RegionMap();
 }
 
 GameEntity::~GameEntity()
@@ -72,7 +73,12 @@ Collider* GameEntity::GetCollider()
 	return collider_;
 }
 
-int GameEntity::GetCollisionRegionID()
+GameEntity::RegionMap* GameEntity::GetCollisionRegionMap()
 {
-	return collisionRegionID_;
+	return regionMap_;
+}
+
+void GameEntity::SetCollisionRegionMap(RegionMap* map)
+{
+	regionMap_ = map;
 }

@@ -19,6 +19,9 @@
     <Filter Include="Game\Collision">
       <UniqueIdentifier>{6a0821f5-5264-41be-b042-e624c66f300e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Weapon related">
+      <UniqueIdentifier>{d0b1c749-cb40-434a-8e36-2fbae699757a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -97,6 +100,24 @@
       <Filter>System</Filter>
     </ClCompile>
     <ClCompile Include="Maths.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionManager.cpp">
+      <Filter>Game\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ConicalFiringBehaviour.cpp">
+      <Filter>Game\Weapon related</Filter>
+    </ClCompile>
+    <ClCompile Include="FlakCannonFiringBehaviour.cpp">
+      <Filter>Game\Weapon related</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleFiringBehaviour.cpp">
+      <Filter>Game\Weapon related</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerManager.cpp">
       <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
@@ -181,6 +202,27 @@
     </ClInclude>
     <ClInclude Include="AssetManager.hpp">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionManager.h">
+      <Filter>Game\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ConicalFiringBehaviour.h">
+      <Filter>Game\Weapon related</Filter>
+    </ClInclude>
+    <ClInclude Include="FlakCannonFiringBehaviour.h">
+      <Filter>Game\Weapon related</Filter>
+    </ClInclude>
+    <ClInclude Include="IWeaponBehaviour.h">
+      <Filter>Game\Weapon related</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleFiringBehaviour.h">
+      <Filter>Game\Weapon related</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerManager.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

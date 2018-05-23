@@ -3,6 +3,7 @@
 
 #include <d3dx9math.h>
 #include "Collision.h"
+#include "Collider.h"
 #include "GameEntity.h"
 #include <list>
 #include <map>
@@ -27,18 +28,20 @@ public:
 
 	void AddEntityToGrid(GameEntity* entity);// call when object is created
 	void RemoveEntityFromGrid(GameEntity* entity);// call when object is destroyed
-	void UpdateEntitiesInGrid();
+	void UpdateEntitiesInGrid(Game* game);
 	void CalculateCollisionDetection(Game* game);
 
 private:
 	void SetUpRegions();
-	int ReturnRegionIDFromLocation(D3DXVECTOR2 position);
+	GameEntity::RegionMap* ReturnRegionMapFromTransform(D3DXVECTOR2 position, int radius);
 	void InsertEntityIntoRegion(int regionID, GameEntity* entity);
 	void RemoveEntityFromRegion(int regionID, GameEntity* entity);
 	bool CheckIfRegionChanged(GameEntity* entity);
 
 	int cellCountInARowOrColumn_;
-	std::map<int, CollisionRegion*> listOfRegions_;
+	
+	typedef std::map<int, CollisionRegion*> RegionList;
+	RegionList* listOfRegions_;
 
 	Collision* collision_;
 };

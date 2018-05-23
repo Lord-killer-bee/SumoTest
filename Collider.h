@@ -8,6 +8,7 @@ class GameEntity;
 class Collider
 {
 	friend class Collision;
+	friend class CollisionManager;
 private:
 	D3DXVECTOR3 position;
 	float radius;

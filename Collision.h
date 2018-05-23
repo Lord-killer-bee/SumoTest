@@ -14,6 +14,8 @@ public:
 	Collision();
 	~Collision();
 
+	friend class CollisionManager;
+
 	Collider *CreateCollider(GameEntity *entity);
 	void DestroyCollider(Collider *collider);
 
@@ -23,6 +25,7 @@ public:
 	void DisableCollider(Collider *collider);
 
 	void DoCollisions(Game *game) const;
+	void DoCollisionOnAListOfEntities(std::list<GameEntity* > entities, Game* game) const;
 
 private:
 
